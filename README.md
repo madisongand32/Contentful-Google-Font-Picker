@@ -1,79 +1,67 @@
 This project was bootstrapped with [Create Contentful App](https://github.com/contentful/create-contentful-app).
 
-## How to use
+# 🚀 Getting Started
+## Development
 
-Execute create-contentful-app with npm, npx or yarn to bootstrap the example:
+Run the app locally inside your Contentful environment:
 
-```bash
-# npx
-npx create-contentful-app --example vite-react
+npm start
 
-# npm
-npm init contentful-app --example vite-react
 
-# Yarn
-yarn create contentful-app --example vite-react
-```
+Starts the app in development mode. 
 
-## Available Scripts
+Automatically opens your Contentful app in the browser. 
 
-In the project directory, you can run:
+The app will reload when you make edits.
 
-#### `npm start`
 
-Creates or updates your app definition in Contentful, and runs the app in development mode.
-Open your app to view it in the browser.
+## Build
 
-The page will reload if you make edits.
-You will also see any lint errors in the console.
+npm run build
 
-#### `npm run build`
 
-Builds the app for production to the `dist` folder.
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Builds the app into the dist folder.
 
-The build is minified and the filenames include the hashes.
-Your app is ready to be deployed!
+Optimized for production with minification and hashed filenames.
 
-#### `npm run upload`
 
-Uploads the `dist` folder to Contentful and creates a bundle that is automatically activated.
-The command guides you through the deployment process and asks for all required arguments.
-Read [here](https://www.contentful.com/developers/docs/extensibility/app-framework/create-contentful-app/#deploy-with-contentful) for more information about the deployment process.
 
-#### `npm run upload-ci`
+## App Installation
 
-Similar to `npm run upload` it will upload your app to contentful and activate it. The only difference is  
-that with this command all required arguments are read from the environment variables, for example when you add
-the upload command to your CI pipeline.
 
-For this command to work, the following environment variables must be set:
+To install the app on the Contentful Platform, you will need to create a custom app in Contentful (Apps -> Custom Apps -> Manage App Definitions -> Create App)
 
-- `CONTENTFUL_ORG_ID` - The ID of your organization
-- `CONTENTFUL_APP_DEF_ID` - The ID of the app to which to add the bundle
-- `CONTENTFUL_ACCESS_TOKEN` - A personal [access token](https://www.contentful.com/developers/docs/references/content-management-api/#/reference/personal-access-tokens)
 
-## Libraries to use
 
-To make your app look and feel like Contentful use the following libraries:
+<b>Hosting URL:</b> https://contentful-google-font-picker.vercel.app/
 
-- [Forma 36](https://f36.contentful.com/) – Contentful's design system
-- [Contentful Field Editors](https://www.contentful.com/developers/docs/extensibility/field-editors/) – Contentful's field editor React components
 
-## Using the `contentful-management` SDK
+<b>Location:</b> Entry Field, Short Text
 
-In the default create contentful app output, a contentful management client is
-passed into each location. This can be used to interact with Contentful's
-management API. For example
+<b>Will not work on any other location unless you create new files for that location</b>
 
-```js
-// Use the client
-cma.locale.getMany({}).then((locales) => console.log(locales));
-```
 
-Visit the [`contentful-management` documentation](https://www.contentful.com/developers/docs/extensibility/app-framework/sdk/#using-the-contentful-management-library)
-to find out more.
+<img width="1146" height="634" alt="Screenshot 2025-09-25 at 3 57 20 PM" src="https://github.com/user-attachments/assets/0bb4afc3-3a89-48f9-a6f2-8ac565658935" />
 
-## Learn More
 
-[Read more](https://www.contentful.com/developers/docs/extensibility/app-framework/create-contentful-app/) and check out the video on how to use the CLI.
+
+
+
+On the field level within the Content Type you're using the app for, you'll set the Appearance to the Google Font Picker app you created. <b>Field must be named "Google Font Picker" with ID googleFontPicker in order for the App to render it correctly</b>
+
+
+
+<img width="1419" height="700" alt="Screenshot 2025-09-25 at 3 45 36 PM" src="https://github.com/user-attachments/assets/fc1d082f-79b3-4de7-a8ac-6857c18edc53" />
+
+
+
+
+You will now see the app on the field you assigned it to
+
+<img width="992" height="206" alt="Screenshot 2025-09-25 at 3 47 05 PM" src="https://github.com/user-attachments/assets/3d2efdd7-a8f5-476d-8ec8-7a3d140232ef" />
+
+
+
+
+
+
