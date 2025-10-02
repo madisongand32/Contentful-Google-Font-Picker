@@ -2,47 +2,25 @@ import { FieldAppSDK } from "@contentful/app-sdk";
 import { Option, Select } from "@contentful/f36-components";
 import { useSDK } from "@contentful/react-apps-toolkit";
 import React, { useCallback, useEffect, useState } from "react";
+import { z } from "zod";
 
 import googleFonts from "../../config/google-fonts.json";
-import { parseFontFieldValue, buildFontFieldValue } from "../lib/field-value";
+import { FontSchema, FontFieldSchema } from "../lib/field-value";
 
-type Font = {
-  family: string;
-  googleUrl?: string;
-};
+type Font = z.infer<typeof FontSchema>;
 
 const HOST_GROTESK_FALLBACK =
   "'Host Grotesk', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
 
-const parseFamilyFromUrl = (url: string) => {
-  try {
-    const parsedUrl = new URL(url);
-    const familyQuery = parsedUrl.searchParams.get("family") || "";
-    const familyPart = familyQuery.split(":")[0];
-    return decodeURIComponent(familyPart.replace(/\+/g, " "));
-  } catch {
-    const match = url.match(/family=([^&]+)/);
-    if (!match) return url;
-    const familyPart = match[1].split(":")[0];
-    return decodeURIComponent(familyPart.replace(/\+/g, " "));
-  }
-};
-
 // Precompute families at module load — the JSON is static inside the iframe
+const GoogleFontsSchema = z.object({ families: z.array(FontSchema) });
 const FAMILIES: Font[] = (() => {
-  const fonts =
-    (googleFonts as unknown as { families: Partial<Font>[] }).families || [];
-  return fonts
-    .map((font) => {
-      const googleUrl = font.googleUrl;
-      const family =
-        font.family || (googleUrl ? parseFamilyFromUrl(googleUrl) : "");
-      return {
-        family,
-        googleUrl,
-      } as Font;
-    })
-    .filter((font) => !!font.family);
+  const result = GoogleFontsSchema.safeParse(googleFonts);
+  if (!result.success) {
+    console.error("Invalid google-fonts.json structure:", result.error);
+    return [];
+  }
+  return result.data.families.filter((font) => font.family && font.googleUrl);
 })();
 
 const injectedFonts = new Set<string>();
@@ -51,8 +29,9 @@ const Field: React.FC = () => {
   const sdk = useSDK<FieldAppSDK>();
 
   const [selected, setSelected] = useState<string | null>(() => {
-    const parsed = parseFontFieldValue(sdk.field.getValue());
-    return parsed?.googleFontPicker.family ?? null;
+    const rawValue = sdk.field.getValue();
+    const result = FontFieldSchema.safeParse(rawValue);
+    return result.success ? result.data?.family ?? null : null;
   });
 
   useEffect(() => {
@@ -63,10 +42,10 @@ const Field: React.FC = () => {
       console.debug("startAutoResizer failed", error);
     }
 
-    // subscribe to external changes to keep UI in sync (use Zod-backed parser)
+    // subscribe to external changes to keep UI in sync
     const detach = sdk.field.onValueChanged((value) => {
-      const parsed = parseFontFieldValue(value);
-      setSelected(parsed?.googleFontPicker.family ?? null);
+      const result = FontFieldSchema.safeParse(value);
+      setSelected(result.success ? result.data?.family ?? null : null);
     });
 
     return () => {
@@ -74,17 +53,17 @@ const Field: React.FC = () => {
     };
   }, [sdk]);
 
-  const injectLink = useCallback((url?: string) => {
+  const injectLink = useCallback((googleUrl?: string) => {
     try {
-      if (!url || injectedFonts.has(url)) return;
-      injectedFonts.add(url);
+      if (!googleUrl || injectedFonts.has(googleUrl)) return;
+      injectedFonts.add(googleUrl);
       const link = document.createElement("link");
       link.rel = "stylesheet";
       link.setAttribute("data-google-fonts", "true");
-      link.href = url;
+      link.href = googleUrl;
       document.head.appendChild(link);
     } catch (err) {
-      console.error("[google-font-picker] injectLink error", err, url);
+      console.error("[google-font-picker] injectLink error", err, googleUrl);
     }
   }, []);
 
@@ -102,7 +81,20 @@ const Field: React.FC = () => {
         if (!family) {
           await sdk.field.removeValue();
         } else {
-          await sdk.field.setValue(buildFontFieldValue({ family }));
+          const entry = FAMILIES.find((f) => f.family === family);
+          if (entry?.googleUrl) {
+            // Save a payload using googleUrl consistently
+            const fontValue = {
+              family,
+              googleUrl: entry.googleUrl,
+            };
+            await sdk.field.setValue(fontValue);
+          } else {
+            console.error(
+              "[google-font-picker] No URL found for font:",
+              family
+            );
+          }
         }
       } catch (error) {
         console.error(

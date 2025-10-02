@@ -1,33 +1,12 @@
-export type FontObject = { googleFontPicker: { family: string } };
+import { z } from "zod";
 
-/**
- * Parse raw field value into object with `googleFontPicker.family`.
- * Always returns consistent object shape, or null if empty.
- */
-export const parseFontFieldValue = (value: unknown): FontObject | null => {
-  if (typeof value === "string" && value.trim()) {
-    return { googleFontPicker: { family: value.trim() } };
-  }
+// Base font object schema
+export const FontSchema = z.object({
+  family: z.string().min(1, "Family name cannot be empty"),
+  googleUrl: z.string().min(1, "Google URL cannot be empty"),
+});
 
-  // Optional: handle legacy object shapes
-  if (value && typeof value === "object" && "googleFontPicker" in value) {
-    const obj = value as Record<string, unknown>;
-    if (
-      obj.googleFontPicker &&
-      typeof (obj.googleFontPicker as any).family === "string"
-    ) {
-      return {
-        googleFontPicker: { family: (obj.googleFontPicker as any).family },
-      };
-    }
-  }
+// Schema for font field values (can be null when no font selected)
+export const FontFieldSchema = FontSchema.nullable();
 
-  return null;
-};
-
-/**
- * Build canonical field value for Contentful short text field.
- * Returns just the font family string.
- */
-export const buildFontFieldValue = (font?: { family: string }): string =>
-  font?.family ?? "";
+export type FontFieldValue = z.infer<typeof FontFieldSchema>;
