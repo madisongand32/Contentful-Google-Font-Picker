@@ -131,7 +131,7 @@ weights (e.g., 400, 700, etc.)
 
 1. In Contentful, go to **Apps → Custom Apps**.
 2. Click **Install App**.
-3. Paste in the [deployed app’s URL]()
+3. Paste in the [deployed app’s URL](https://contentful-google-font-picker.vercel.app/)
 4. Assign the app to the desired space and environment.
 
 ### Connect the App to a Field
